@@ -3,6 +3,8 @@ import streamlit as st
 st.title("My Test new App")
 st.write("Lets get it, lets go")
 
+st.image("cards/BB.png", width = 200)
+
 
 # from collections import defaultdict
 # from pathlib import Path
