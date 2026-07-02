@@ -1,19 +1,25 @@
 import streamlit as st
 import requests
+import json
 import os
+from pathlib import Path
 from supabase import create_client, Client
 
 
+
+script_dir = Path(__file__).parent
 # All Card Data
 
-giturl = "https://api.github.com/JeanYesJedEye/dojo-deck-test/tree/main/cards.json"
+giturl = str(script_dir / "cards.json")
 
 
 # Cache the data
 @st.cache_data
 def load_master_cards(url):
-    response = requests.get(url)
-    return response.json()
+    with open(url, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    # response = requests.get(url)
+    return data
 
 # Load Cards
 try:
@@ -23,11 +29,65 @@ except Exception as e:
     ALL_CARDS = {}
 
 
+# 2. Build the CSS styles (Notice the new '.binder-row' class to align them)
+html_content = """
+<style>
+.binder-row {
+  display: flex;
+  flex-wrap: wrap;         /* Allows cards to wrap to the next line if the screen is too small */
+  gap: 20px;               /* Space between your cards */
+  justify-content: center; /* Centers the row of cards on the page */
+  padding: 20px;
+}
+
+.flip-card {
+  background-color: transparent;
+  width: 200px;            /* Slimmed down slightly to fit a row better */
+  height: 280px;
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-card-front img, .flip-card-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+</style>
+
+<div class="binder-row">
+"""
+
+
 # 3. Initialize Supabase
 url: str = os.environ.get("SUPABASE_RIGHT")
 key: str = os.environ.get("SUPABASE_CARDS")
-print(url)
-print(key)
 supabase: Client = create_client(url, key)
 
 st.title("🎴 Digital Card Binder")
@@ -36,43 +96,61 @@ st.title("🎴 Digital Card Binder")
 username = st.text_input("Enter Twitch Username").lower().strip()
 
 if username:
-    response = supabase.table('users').select("id, name").eq("name", username).execute()
+    try:
+        response = (
+            supabase.table("users")
+          .select("id, name, user_cards(Amount, cards(id, name, rarity))")
+          .eq("name", username)
+          .execute()
+        )
 
-    st.write(response.data)
+        if response.data:
+            user_data = response.data[0]
+            st.success(f"Found binder for {user_data['name']}!")
 
-# if username:
-#     try:
-#         response = supabase.table("users") \
-#           .select("id, name, user_cards(Amount, cards(id, name, rarity))") \
-#           .eq("name", username) \
-#           .execute()
-        
-#         if response.data:
-#             user_data = response.data[0]
-#             st.success(f"Found binder for {user_data['name']}!")
+            raw_inventory = user_data.get("user_cards", [])
 
-#             raw_inventory = user_data.get("user_cards", [])
+            if raw_inventory:
+                st.markdown("### Your Collection:")
 
-#             if raw_inventory:
-#                 st.write("### Your Collection:")
+                user_inventory = []
+                for item in raw_inventory:
+                    card_info = item["cards"]
+                    user_inventory.append({
+                        "card_id": card_info["id"],
+                        "name": card_info["name"],
+                        "rarity": card_info["rarity"],
+                        "amount": item["Amount"]
+                    })
 
-#                 user_inventory = []
-#                 for item in raw_inventory:
-#                     card_info = item["cards"]
-#                     user_inventory.append({
-#                         "card_id": card_info["id"],
-#                         "name": card_info["name"],
-#                         "rarity": card_info["rarity"],
-#                         "amount": item["amount"]
-#                     })
+                for card in user_inventory:
+                    cid = str(card['card_id'])
 
-#                 st.write(user_inventory)
-#             else:
-#                 st.info("You don't own any cards yet!")
-#         else:
-#             st.error(f"User {username} not found in database")
-#     except Exception as e:
-#         st.error(f"An error occured while fetching data: {e}")
+                    if cid in ALL_CARDS:
+                        html_content += f"""
+                            <div class="flip-card">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">
+                                        <img src="{ALL_CARDS[{cid}]['front']}" alt="Card {ALL_CARDS[{cid}]['name']} Front">
+                                    </div>
+                                    <div class="flip-card-back">
+                                        <img src="{ALL_CARDS[{cid}]['back']}" alt="Card {ALL_CARDS[{cid}]['name']} Back">
+                                    </div>
+                                </div>
+                            </div>
+                            """
+
+                # 4. Close the binder-row div
+                html_content += "</div>"
+
+                # 5. Render everything with a single Streamlit call
+                st.markdown(html_content, unsafe_allow_html=True)
+            else:
+                st.info("You don't own any cards yet!")
+        else:
+            st.error(f"User {username} not found in database")
+    except Exception as e:
+        st.error(f"An error occured while fetching data: {e}")
 
 
 # # Injecting the 3D flipping styling
