@@ -6,7 +6,8 @@ from supabase import create_client, Client
 
 # All Card Data
 
-giturl = "https://github.com/JeanYesJedEye/dojo-deck-test/tree/main/cards.json"
+giturl = "https://api.github.com/JeanYesJedEye/dojo-deck-test/tree/main/cards.json"
+
 
 # Cache the data
 @st.cache_data
@@ -35,38 +36,46 @@ st.title("🎴 Digital Card Binder")
 username = st.text_input("Enter Twitch Username").lower().strip()
 
 if username:
-    try:
-        response = supabase.table("users") \
-          .select("id, name, user_cards(Amount, cards(id, name, rarity))") \
-          .eq("name", username) \
-          .execute()
+    response = supabase.table('users') \
+        .select("id, name") \
+        .eq("name", username) \
+        .execute()
+
+    st.write(response.data)
+
+# if username:
+#     try:
+#         response = supabase.table("users") \
+#           .select("id, name, user_cards(Amount, cards(id, name, rarity))") \
+#           .eq("name", username) \
+#           .execute()
         
-        if response.data:
-            user_data = response.data[0]
-            st.success(f"Found binder for {user_data['name']}!")
+#         if response.data:
+#             user_data = response.data[0]
+#             st.success(f"Found binder for {user_data['name']}!")
 
-            raw_inventory = user_data.get("user_cards", [])
+#             raw_inventory = user_data.get("user_cards", [])
 
-            if raw_inventory:
-                st.write("### Your Collection:")
+#             if raw_inventory:
+#                 st.write("### Your Collection:")
 
-                user_inventory = []
-                for item in raw_inventory:
-                    card_info = item["cards"]
-                    user_inventory.append({
-                        "card_id": card_info["id"],
-                        "name": card_info["name"],
-                        "rarity": card_info["rarity"],
-                        "amount": item["amount"]
-                    })
+#                 user_inventory = []
+#                 for item in raw_inventory:
+#                     card_info = item["cards"]
+#                     user_inventory.append({
+#                         "card_id": card_info["id"],
+#                         "name": card_info["name"],
+#                         "rarity": card_info["rarity"],
+#                         "amount": item["amount"]
+#                     })
 
-                st.write(user_inventory)
-            else:
-                st.info("You don't own any cards yet!")
-        else:
-            st.error(f"User {username} not found in database")
-    except Exception as e:
-        st.error(f"An error occured while fetching data: {e}")
+#                 st.write(user_inventory)
+#             else:
+#                 st.info("You don't own any cards yet!")
+#         else:
+#             st.error(f"User {username} not found in database")
+#     except Exception as e:
+#         st.error(f"An error occured while fetching data: {e}")
 
 
 # # Injecting the 3D flipping styling
