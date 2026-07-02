@@ -1,0 +1,26 @@
+{
+  "Serenity Surge": {
+    "name": "Serenity Surge",
+    "front": "app/static/serenity_surge_front.png",
+    "back": "app/static/serenity_surge_back.png"
+  },
+  "Graceful Resurrection": {
+    "name": "Graceful Resurrection",
+    "front": "app/static/graceful_resurrection_front.png",
+    "back": "app/static/graceful_resurrection_back.png"
+  },
+  "Graceful Destruction": {
+    "name": "Graceful Destruction",
+    "front": "app/static/graceful_destruction_front.png",
+    "back": "app/static/graceful_destruction_back.png"
+  },
+  "1st Witness": {
+    "name": "1st Witness",
+    "front": "app/static/1st_witness_front.png",
+    "back": "app/static/1st_witness_back.png"
+  },
+  "Empowerment": {
+    "name": "Empowerment",
+    "front": "app/static/empowerment_front.png",
+    "back": "app/static/empowerment_back.png"
+  }
