@@ -1,2 +1,6 @@
 streamlit
 pandas
+json
+os
+pathlib
+supabase
