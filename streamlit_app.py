@@ -85,10 +85,10 @@ st.markdown(
     <div class="flip-card">
       <div class="flip-card-inner">
         <div class="flip-card-front">
-          <img src="/app/static/BB.png" alt="Front">
+          <img src="app/static/BB.png" alt="Front">
         </div>
         <div class="flip-card-back">
-          <img src="/app/static/DB.png" alt="Back">
+          <img src="app/static/DB.png" alt="Back">
         </div>
       </div>
     </div>
