@@ -24,7 +24,7 @@ except Exception as e:
 
 
 # 3. Initialize Supabase
-url: str = os.environ.get("SUPABASE_URL")
+url: str = os.environ.get("SUPABASE_RIGHT")
 key: str = os.environ.get("SUPABASE_CARDS")
 print(url)
 print(key)
