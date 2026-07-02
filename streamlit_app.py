@@ -90,9 +90,9 @@ html_content = """
 .card-container {
   display: block; 
   cursor: pointer;
-  perspective: 1000px;
   width: 200px;  /* Matches your card width exactly */
   height: 280px; /* Matches your card height exactly */
+  position: relative;
 }
 
 /* FORCE ENTIRE PARENT WRAPPER TO THE ABSOLUTE FOREGROUND WHEN CHECKED */
@@ -101,21 +101,22 @@ html_content = """
   z-index: 999999; /* Higher than all other cards combined */
 }
 
-/* 3. The Backdrop overlay */
+/* 3. The Backdrop overlay - FIXED to fill the screen */
 .card-container::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.85); /* Slightly darker for better contrast */
+  
+  /* Force positioning relative to the screen viewport, not the card slot */
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  
+  background: rgba(0, 0, 0, 0.85); 
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease;
-  z-index: 99999; /* Boosted to break out of Streamlit containers */
+  z-index: 99999; 
 }
 
 /* 4. Activate the backdrop overlay */
