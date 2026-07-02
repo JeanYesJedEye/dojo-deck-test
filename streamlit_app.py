@@ -5,7 +5,96 @@ st.write("Lets get it, lets go")
 
 st.image("cards/BB.png", width = 200)
 
+if "is_flipped" not in st.session_state:
+    st.session_state.is_flipped = False
 
+front_image = "cards/BB.png"
+back_image = "cards/DB.png"
+
+current_image = back_image if st.session_state.is_flipped else front_image
+
+st.markdown(
+        f"""
+    <style>
+    .flip-btn button {{
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Render the button with the image inside it
+with st.container():
+    if st.button("🔄 Flip Card", key="flip_action"):
+        st.session_state.is_flipped = not st.session_state.is_flipped
+        st.rerun()
+        
+    # Display the current active side
+    st.image(current_image, width=300)
+
+
+
+# Injecting the 3D flipping styling
+st.markdown(
+    """
+    <style>
+    .flip-card {
+      background-color: transparent;
+      width: 300px;
+      height: 400px;
+      perspective: 1000px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+
+    .flip-card-front img, .flip-card-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+    </style>
+    
+    <div class="flip-card">
+      <div class="flip-card-inner">
+        <div class="flip-card-front">
+          <img src="/app/static/BB.png" alt="Front">
+        </div>
+        <div class="flip-card-back">
+          <img src="/app/static/DB.png" alt="Back">
+        </div>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 # from collections import defaultdict
 # from pathlib import Path
 # import sqlite3
