@@ -79,6 +79,56 @@ html_content = """
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+
+/* 1. Hide the tracking checkbox completely */
+.card-trigger {
+  display: none;
+}
+
+/* 2. Create a wrapper that handles the clickable zone */
+.card-container {
+  cursor: pointer;
+  perspective: 1000px;
+}
+
+/* 3. The Backdrop overlay (hidden by default) */
+.card-container::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
+  z-index: 999; /* Sits over everything else on the page */
+}
+
+/* 4. MAGIC EFFECT: When checked, activate the backdrop overlay */
+.card-trigger:checked + .card-container::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 5. MAGIC EFFECT: When checked, pop out and center the flip card */
+.card-trigger:checked + .card-container .flip-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.6); /* Enlarges card by 1.6x */
+  z-index: 1000; /* Stays in front of the dark backdrop */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Maintain smooth transition resets when closing */
+.flip-card {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
 </style>
 
 <div class="binder-row">
@@ -128,6 +178,8 @@ if username:
 
                     if cid in ALL_CARDS:
                         html_content += f"""
+<input type="checkbox" id="zoom-{cid}" class="card-trigger">
+<label for="zoom-{cid}" class="card-container">                        
 <div class="flip-card">
 <div class="flip-card-inner">
 <div class="flip-card-front">
@@ -135,6 +187,7 @@ if username:
 </div>
 <div class="flip-card-back">
 <img src="{ALL_CARDS[cid]['back']}" alt="Card {ALL_CARDS[cid]['name']} Back">
+</div>
 </div>
 </div>
 </div>
