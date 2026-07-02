@@ -36,10 +36,7 @@ st.title("🎴 Digital Card Binder")
 username = st.text_input("Enter Twitch Username").lower().strip()
 
 if username:
-    response = supabase.table('users') \
-        .select("id, name") \
-        .eq("name", username) \
-        .execute()
+    response = supabase.table('users').select("id, name").eq("name", username).execute()
 
     st.write(response.data)
 
