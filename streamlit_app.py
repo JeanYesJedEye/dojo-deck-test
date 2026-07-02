@@ -128,17 +128,17 @@ if username:
 
                     if cid in ALL_CARDS:
                         html_content += f"""
-                            <div class="flip-card">
-                                <div class="flip-card-inner">
-                                    <div class="flip-card-front">
-                                        <img src="{ALL_CARDS[{cid}]['front']}" alt="Card {ALL_CARDS[{cid}]['name']} Front">
-                                    </div>
-                                    <div class="flip-card-back">
-                                        <img src="{ALL_CARDS[{cid}]['back']}" alt="Card {ALL_CARDS[{cid}]['name']} Back">
-                                    </div>
-                                </div>
-                            </div>
-                            """
+<div class="flip-card">
+<div class="flip-card-inner">
+<div class="flip-card-front">
+<img src="{ALL_CARDS[cid]['front']}" alt="Card {ALL_CARDS[cid]['name']} Front">
+</div>
+<div class="flip-card-back">
+<img src="{ALL_CARDS[cid]['back']}" alt="Card {ALL_CARDS[cid]['name']} Back">
+</div>
+</div>
+</div>
+"""
 
                 # 4. Close the binder-row div
                 html_content += "</div>"
