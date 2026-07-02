@@ -3,8 +3,6 @@ import requests
 import os
 from supabase import create_client, Client
 
-st.title("My Test new App")
-st.write("Lets get it, lets go")
 
 # All Card Data
 
