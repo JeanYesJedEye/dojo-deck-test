@@ -25,6 +25,8 @@ except Exception as e:
 # 3. Initialize Supabase
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_CARDS")
+print(url)
+print(key)
 supabase: Client = create_client(url, key)
 
 st.title("🎴 Digital Card Binder")
