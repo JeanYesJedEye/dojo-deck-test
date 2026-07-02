@@ -35,7 +35,7 @@ username = st.text_input("Enter Twitch Username").lower().strip()
 if username:
     try:
         response = supabase.table("users") \
-          .select("id, name, user_cards(amount, cards(id, namne, rarity))") \
+          .select("id, name, user_cards(Amount, cards(id, name, rarity))") \
           .eq("name", username) \
           .execute()
         
