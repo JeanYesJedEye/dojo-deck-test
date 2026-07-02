@@ -86,47 +86,61 @@ html_content = """
   display: none;
 }
 
-/* 2. Create a wrapper that handles the clickable zone */
+/* FIX: Force the label container to behave like a standard grid block item */
 .card-container {
+  display: block; 
   cursor: pointer;
   perspective: 1000px;
+  width: 200px;  /* Matches your card width exactly */
+  height: 280px; /* Matches your card height exactly */
 }
 
-/* 3. The Backdrop overlay (hidden by default) */
+/* FORCE ENTIRE PARENT WRAPPER TO THE ABSOLUTE FOREGROUND WHEN CHECKED */
+.card-trigger:checked + .card-container {
+  position: relative;
+  z-index: 999999; /* Higher than all other cards combined */
+}
+
+/* 3. The Backdrop overlay */
 .card-container::before {
   content: "";
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85); /* Slightly darker for better contrast */
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.4s ease;
-  z-index: 999; /* Sits over everything else on the page */
+  transition: opacity 0.3s ease;
+  z-index: 99999; /* Boosted to break out of Streamlit containers */
 }
 
-/* 4. MAGIC EFFECT: When checked, activate the backdrop overlay */
+/* 4. Activate the backdrop overlay */
 .card-trigger:checked + .card-container::before {
   opacity: 1;
   visibility: visible;
 }
 
-/* 5. MAGIC EFFECT: When checked, pop out and center the flip card */
+/* 5. FIX: Absolute viewport targeting to force perfect centering */
 .card-trigger:checked + .card-container .flip-card {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(1.6); /* Enlarges card by 1.6x */
-  z-index: 1000; /* Stays in front of the dark backdrop */
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto; /* Magic trick: combined with fixed 0 coordinates, this centers perfectly */
+  width: 300px;  /* Blown up size dimensions */
+  height: 420px;
+  transform: scale(1.3); 
+  z-index: 100000;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
 }
 
-/* Maintain smooth transition resets when closing */
 .flip-card {
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, width 0.4s ease, height 0.4s ease;
 }
 
 </style>
@@ -190,7 +204,7 @@ if username:
 </div>
 </div>
 </div>
-</div>
+</label>
 """
 
                 # 4. Close the binder-row div
