@@ -1,100 +1,133 @@
 import streamlit as st
+import requests
+import os
+from supabase import create_client, Client
 
 st.title("My Test new App")
 st.write("Lets get it, lets go")
 
-st.image("cards/BB.png", width = 200)
+# All Card Data
 
-if "is_flipped" not in st.session_state:
-    st.session_state.is_flipped = False
+giturl = "https://github.com/JeanYesJedEye/dojo-deck-test/tree/main/cards.json"
 
-front_image = "cards/BB.png"
-back_image = "cards/DB.png"
+# Cache the data
+@st.cache_data
+def load_master_cards(url):
+    response = requests.get(url)
+    return response.json()
 
-current_image = back_image if st.session_state.is_flipped else front_image
+# Load Cards
+try:
+    ALL_CARDS = load_master_cards(giturl)
+except Exception as e:
+    st.error("Failed to load card info from git")
+    ALL_CARDS = {}
 
-st.markdown(
-        f"""
-    <style>
-    .flip-btn button {{
-        border: none;
-        background: none;
-        padding: 0;
-        cursor: pointer;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
-# Render the button with the image inside it
-with st.container():
-    if st.button("🔄 Flip Card", key="flip_action"):
-        st.session_state.is_flipped = not st.session_state.is_flipped
-        st.rerun()
+# 3. Initialize Supabase
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_CARDS")
+supabase: Client = create_client(url, key)
+
+st.title("🎴 Digital Card Binder")
+
+# 2 Authenticate User
+username = st.text_input("Enter Twitch Username").lower().strip()
+
+if username:
+    try:
+        response = supabase.table("user") \
+          .select("id, name, user_cards(amount, cards(id, namne, rarity))") \
+          .eq("name", username) \
+          .execute()
         
-    # Display the current active side
-    st.image(current_image, width=300)
+        if response.data:
+            user_data = response.data[0]
+            st.success(f"Found binder for {user_data['name']}!")
+
+            raw_inventory = user_data.get("user_cards", [])
+
+            if raw_inventory:
+                st.write("### Your Collection:")
+
+                user_inventory = []
+                for item in raw_inventory:
+                    card_info = item["cards"]
+                    user_inventory.append({
+                        "card_id": card_info["id"],
+                        "name": card_info["name"],
+                        "rarity": card_info["rarity"],
+                        "amount": item["amount"]
+                    })
+
+                st.write(user_inventory)
+            else:
+                st.info("You don't own any cards yet!")
+        else:
+            st.error(f"User {username} not found in database")
+    except Exception as e:
+        st.error(f"An error occured while fetching data: {e}")
 
 
+# # Injecting the 3D flipping styling
+# st.markdown(
+#     """
+#     <style>
+#     .flip-card {
+#       background-color: transparent;
+#       width: 300px;
+#       height: 400px;
+#       perspective: 1000px;
+#     }
 
-# Injecting the 3D flipping styling
-st.markdown(
-    """
-    <style>
-    .flip-card {
-      background-color: transparent;
-      width: 300px;
-      height: 400px;
-      perspective: 1000px;
-    }
+#     .flip-card-inner {
+#       position: relative;
+#       width: 100%;
+#       height: 100%;
+#       text-align: center;
+#       transition: transform 0.6s;
+#       transform-style: preserve-3d;
+#     }
 
-    .flip-card-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-    }
+#     .flip-card:hover .flip-card-inner {
+#       transform: rotateY(180deg);
+#     }
 
-    .flip-card:hover .flip-card-inner {
-      transform: rotateY(180deg);
-    }
+#     .flip-card-front, .flip-card-back {
+#       position: absolute;
+#       width: 100%;
+#       height: 100%;
+#       -webkit-backface-visibility: hidden;
+#       backface-visibility: hidden;
+#     }
 
-    .flip-card-front, .flip-card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
+#     .flip-card-front img, .flip-card-back img {
+#       width: 100%;
+#       height: 100%;
+#       object-fit: cover;
+#       border-radius: 10px;
+#     }
 
-    .flip-card-front img, .flip-card-back img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .flip-card-back {
-      transform: rotateY(180deg);
-    }
-    </style>
+#     .flip-card-back {
+#       transform: rotateY(180deg);
+#     }
+#     </style>
     
-    <div class="flip-card">
-      <div class="flip-card-inner">
-        <div class="flip-card-front">
-          <img src="app/static/BB.png" alt="Front">
-        </div>
-        <div class="flip-card-back">
-          <img src="app/static/DB.png" alt="Back">
-        </div>
-      </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+#     <div class="flip-card">
+#       <div class="flip-card-inner">
+#         <div class="flip-card-front">
+#           <img src="app/static/BB.png" alt="Front">
+#         </div>
+#         <div class="flip-card-back">
+#           <img src="app/static/DB.png" alt="Back">
+#         </div>
+#       </div>
+#     </div>
+#     """,
+#     unsafe_allow_html=True
+# )
+
+
 # from collections import defaultdict
 # from pathlib import Path
 # import sqlite3
